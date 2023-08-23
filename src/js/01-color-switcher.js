@@ -1,3 +1,4 @@
+
 const getElement = element => document.querySelector(element);
 const startButton = getElement(`[data-start]`);
 const stopButton = getElement(`[data-stop]`);
@@ -12,11 +13,13 @@ startButton.addEventListener(`click`, function () {
 
 stopButton.addEventListener(`click`, function () {
   startIsActive(false);
+  stopButton.disabled = true; 
   clearInterval(intervalId);
 });
 
 function startIsActive(status) {
-  return (startButton.disabled = status);
+  startButton.disabled = status;
+  stopButton.disabled = !status; 
 }
 
 function getRandomHexColor() {
