@@ -191,17 +191,18 @@ const setResultButtonDisabled = value => (resultButton.disabled = value);
 
 function mainController(event) {
   event.preventDefault();
-  setResultButtonDisabled(true); // Делаем кнопку неактивной
   getDelayObject();
   amountRepeat = 0;
   clearTimers();
   startTimeout();
+  setResultButtonDisabled(true); // Disable the button immediately
 }
 
 const startTimeout = () => {
   timerId.timeoutId = setTimeout(() => {
     createPromise();
     startInterval();
+    setResultButtonDisabled(false); // Enable the button after the promises are started
   }, delayObject.delay);
 };
 
