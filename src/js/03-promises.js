@@ -78,55 +78,97 @@
 // delayForm.addEventListener('change', changeController);
 
 // setResultButtonDisabled(true);
-
 import Notiflix from 'notiflix';
 
-function createPromise(position, delay) {
-  return new Promise((resolve, reject) => {
-    const shouldResolve = Math.random() > 0.3;
-    setTimeout(() => {
-      if (shouldResolve) {
-        resolve({ position, delay });
-      } else {
-        reject({ position, delay });
-      }
-    }, delay);
-  });
+const resultButton = document.querySelector(`.form > button`);
+const delayForm = document.querySelector(`.form`);
+let delayFields = document.querySelectorAll(`input`);
+let delayObject = {};
+let amountRepeat = 0;
+let timerId = { intervalId: 0, timeoutId: 0 };
+
+// Create new Object with delay property
+
+let getDelayObject = () => {
+  delayFields.forEach(
+    elem => (delayObject[elem.getAttribute(`name`)] = elem.value)
+  );
+};
+
+// Change button status
+
+let resultBtnIsBlock = value => (resultButton.disabled = value);
+
+// Main mainController
+
+function mainController() {
+  event.preventDefault();
+  getDelayObject();
+  amountRepeat = 0;
+  cleaningTimer();
+  startTimeout();
 }
 
-document.querySelector('.form').addEventListener('submit', function (event) {
-  event.preventDefault();
+// First stage (first timeout dalay)
 
-  const submitButton = this.querySelector('button[type="submit"]');
-  submitButton.disabled = true; // Disable the button
+let startTimeout = () => {
+  timerId.timeoutId = setTimeout(() => {
+    createPromise();
+    startInterval();
+  }, delayObject.delay);
+};
 
-  const delayInput = this.querySelector('input[name="delay"]');
-  const stepInput = this.querySelector('input[name="step"]');
-  const amountInput = this.querySelector('input[name="amount"]');
+// Second stage (setInterval)
 
-  const delay = parseInt(delayInput.value);
-  const step = parseInt(stepInput.value);
-  const amount = parseInt(amountInput.value);
+let startInterval = () => {
+  timerId.intervalId = setInterval(() => {
+    createPromise();
+  }, delayObject.step);
+};
 
-  let promisesCompleted = 0; // To keep track of completed promises
+// Check terms;
 
-  if (!isNaN(delay) && !isNaN(step) && !isNaN(amount)) {
-    for (let i = 1; i <= amount; i++) {
-      createPromise(i, delay + (i - 1) * step)
-        .then(({ position, delay }) => {
-          Notiflix.Notify.Success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-        })
-        .catch(({ position, delay }) => {
-          Notiflix.Notify.Failure(`❌ Rejected promise ${position} in ${delay}ms`);
-        })
-        .finally(() => {
-          promisesCompleted++;
-          if (promisesCompleted === amount) {
-            submitButton.disabled = false; // Enable the button again
-          }
-        });
+let createPromise = () => {
+  amountRepeat++;
+  if (amountRepeat <= delayObject.amount) {
+    const shouldResolve = Math.random() > 0.3;
+    if (shouldResolve) {
+      console.log(`ok`);
+      Notiflix.Notify.success(
+        `Fulfilled promise ${amountRepeat} in ${delayObject.step}ms`
+      );
+    } else {
+      console.log(`not ok`);
+      Notiflix.Notify.failure(
+        `Rejected promise ${amountRepeat} in ${delayObject.step}ms`
+      );
     }
   } else {
-    Notiflix.Notify.Warning('Please fill in all the fields with valid numbers.');
+    cleaningTimer();
   }
-});
+};
+
+let cleaningTimer = () => {
+  clearTimeout(timerId.intervalId);
+  clearInterval(timerId.timeoutId);
+};
+
+// Check validation
+
+function changeController() {
+  for (const element of delayFields) {
+    if (element.value < 0 || element.value == ``) {
+      return resultBtnIsBlock(true);
+    }
+  }
+  return resultBtnIsBlock(false);
+}
+
+// Event Listeners
+
+resultButton.addEventListener(`click`, mainController);
+delayForm.addEventListener(`change`, changeController);
+
+// Main
+
+resultBtnIsBlock(true);
