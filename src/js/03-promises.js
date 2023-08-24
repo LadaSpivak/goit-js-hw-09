@@ -87,19 +87,13 @@ let delayObject = {};
 let amountRepeat = 0;
 let timerId = { intervalId: 0, timeoutId: 0 };
 
-// Create new Object with delay property
-
 let getDelayObject = () => {
   delayFields.forEach(
     elem => (delayObject[elem.getAttribute(`name`)] = elem.value)
   );
 };
 
-// Change button status
-
 let resultBtnIsBlock = value => (resultButton.disabled = value);
-
-// Main mainController
 
 function mainController() {
   event.preventDefault();
@@ -107,9 +101,8 @@ function mainController() {
   amountRepeat = 0;
   cleaningTimer();
   startTimeout();
+  resultBtnIsBlock(true); // Disable the button when promises start
 }
-
-// First stage (first timeout dalay)
 
 let startTimeout = () => {
   timerId.timeoutId = setTimeout(() => {
@@ -118,15 +111,11 @@ let startTimeout = () => {
   }, delayObject.delay);
 };
 
-// Second stage (setInterval)
-
 let startInterval = () => {
   timerId.intervalId = setInterval(() => {
     createPromise();
   }, delayObject.step);
 };
-
-// Check terms;
 
 let createPromise = () => {
   amountRepeat++;
@@ -145,6 +134,7 @@ let createPromise = () => {
     }
   } else {
     cleaningTimer();
+    resultBtnIsBlock(false); // Re-enable the button when promises are completed
   }
 };
 
@@ -152,8 +142,6 @@ let cleaningTimer = () => {
   clearTimeout(timerId.intervalId);
   clearInterval(timerId.timeoutId);
 };
-
-// Check validation
 
 function changeController() {
   for (const element of delayFields) {
@@ -164,11 +152,7 @@ function changeController() {
   return resultBtnIsBlock(false);
 }
 
-// Event Listeners
-
 resultButton.addEventListener(`click`, mainController);
 delayForm.addEventListener(`change`, changeController);
-
-// Main
 
 resultBtnIsBlock(true);
