@@ -78,9 +78,6 @@
 // delayForm.addEventListener('change', changeController);
 
 // setResultButtonDisabled(true);
-// js/03-promises.js
-
-// js/03-promises.js
 
 import Notiflix from 'notiflix';
 
