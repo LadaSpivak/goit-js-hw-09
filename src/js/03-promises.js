@@ -149,10 +149,11 @@ function changeController() {
       return resultBtnIsBlock(true);
     }
   }
-  return resultBtnIsBlock(false);
+  resultBtnIsBlock(false); // Re-enable the button when valid values are entered
 }
 
 resultButton.addEventListener(`click`, mainController);
-delayForm.addEventListener(`change`, changeController);
+delayForm.addEventListener(`input`, changeController); // Use 'input' event for immediate validation
 
 resultBtnIsBlock(true);
+
