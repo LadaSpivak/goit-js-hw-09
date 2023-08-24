@@ -80,6 +80,8 @@
 // setResultButtonDisabled(true);
 // js/03-promises.js
 
+// js/03-promises.js
+
 import Notiflix from 'notiflix';
 
 function createPromise(position, delay) {
@@ -98,6 +100,9 @@ function createPromise(position, delay) {
 document.querySelector('.form').addEventListener('submit', function (event) {
   event.preventDefault();
 
+  const submitButton = this.querySelector('button[type="submit"]');
+  submitButton.disabled = true; // Disable the button
+
   const delayInput = this.querySelector('input[name="delay"]');
   const stepInput = this.querySelector('input[name="step"]');
   const amountInput = this.querySelector('input[name="amount"]');
@@ -105,6 +110,8 @@ document.querySelector('.form').addEventListener('submit', function (event) {
   const delay = parseInt(delayInput.value);
   const step = parseInt(stepInput.value);
   const amount = parseInt(amountInput.value);
+
+  let promisesCompleted = 0; // To keep track of completed promises
 
   if (!isNaN(delay) && !isNaN(step) && !isNaN(amount)) {
     for (let i = 1; i <= amount; i++) {
@@ -114,6 +121,12 @@ document.querySelector('.form').addEventListener('submit', function (event) {
         })
         .catch(({ position, delay }) => {
           Notiflix.Notify.Failure(`❌ Rejected promise ${position} in ${delay}ms`);
+        })
+        .finally(() => {
+          promisesCompleted++;
+          if (promisesCompleted === amount) {
+            submitButton.disabled = false; // Enable the button again
+          }
         });
     }
   } else {
