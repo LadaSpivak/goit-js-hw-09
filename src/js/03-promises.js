@@ -119,12 +119,22 @@ function resultBtnIsBlock(value) {
   resultButton.disabled = value;
 }
 
-function mainController(event) {
+async function mainController(event) {
   event.preventDefault();
   getDelayObject();
   cleaningTimer();
-  startTimeout();
   resultBtnIsBlock(true);
+  const amount = delayObject.amount || 1;
+  
+  for (let pos = 1; pos <= amount; pos += 1) {
+    try {
+      await createPromise(pos);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  resultBtnIsBlock(false);
 }
 
 function startTimeout() {
@@ -139,25 +149,23 @@ function startInterval() {
   }, delayObject.step);
 }
 
-function createPromise() {
+function createPromise(position) {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
     setTimeout(() => {
       if (shouldResolve) {
-        resolve();
+        resolve({ position });
       } else {
-        reject();
+        reject({ position });
       }
     }, delayObject.step);
-  })
-    .then(() => {
-      console.log('✅ Fulfilled promise');
-      Notiflix.Notify.success(`Fulfilled promise in ${delayObject.step}ms`);
-    })
-    .catch(() => {
-      console.log('❌ Rejected promise');
-      Notiflix.Notify.failure(`Rejected promise in ${delayObject.step}ms`);
-    });
+  }).then(({ position }) => {
+    console.log(`✅ Fulfilled promise ${position}`);
+    Notiflix.Notify.success(`Fulfilled promise ${position} in ${delayObject.step}ms`);
+  }).catch(({ position }) => {
+    console.log(`❌ Rejected promise ${position}`);
+    Notiflix.Notify.failure(`Rejected promise ${position} in ${delayObject.step}ms`);
+  });
 }
 
 function cleaningTimer() {
@@ -178,4 +186,5 @@ resultButton.addEventListener('click', mainController);
 delayForm.addEventListener('input', changeController);
 
 resultBtnIsBlock(true);
+
 
