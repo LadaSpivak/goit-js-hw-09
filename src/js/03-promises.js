@@ -1,4 +1,5 @@
 
+import { reject } from 'lodash';
 import Notiflix from 'notiflix';
 
 const resultButton = document.querySelector(`.form > button`);
@@ -38,10 +39,22 @@ let startInterval = () => {
   }, delayObject.step);
 };
 
-let createPromise = () => {
-  amountRepeat++;
+let createPromise = (position, delay) => {
+  return new Promise ((resolve, reject)) => {
+    const shouldResolve = Math.random()> 0.3;
+    setTimeout(() => { 
+      if (shouldResolve){
+        resolve({position, delay})
+      } else {
+        reject ({position, delay})
+      }
+    }, delay) 
+  }
+}
+
+
   if (amountRepeat <= delayObject.amount) {
-    const shouldResolve = Math.random() > 0.3;
+   
     if (shouldResolve) {
       console.log(`ok`);
       Notiflix.Notify.success(
@@ -57,7 +70,8 @@ let createPromise = () => {
     cleaningTimer();
     resultBtnIsBlock(false); // Re-enable the button when promises are completed
   }
-};
+;
+
 
 let cleaningTimer = () => {
   clearTimeout(timerId.intervalId);
@@ -78,3 +92,13 @@ delayForm.addEventListener(`input`, changeController); // Use 'input' event for 
 
 resultBtnIsBlock(true);
 
+for (let pos=1; pos <= counter; pos+=1){
+  let del = Number((inputDelay.value) + Number(pos-1) * inputStep.value)
+  const promise = createPromise(pos, delay)
+  promise .then(({ position, delay }) => {
+    console.log(`✅ Fulfilled promise ${position} in ${delay}ms`);
+  })
+  .catch(({ position, delay }) => {
+    console.log(`❌ Rejected promise ${position} in ${delay}ms`);
+  }); 
+}
