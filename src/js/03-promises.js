@@ -103,91 +103,79 @@
 //   }); 
 // }
 
-import { reject } from 'lodash';
 import Notiflix from 'notiflix';
 
-const resultButton = document.querySelector(`.form > button`);
-const delayForm = document.querySelector(`.form`);
-let delayFields = document.querySelectorAll(`input`);
+const resultButton = document.querySelector('.form > button');
+const delayForm = document.querySelector('.form');
+const delayFields = document.querySelectorAll('input');
 let delayObject = {};
-let amountRepeat = 0;
 let timerId = { intervalId: 0, timeoutId: 0 };
 
-let getDelayObject = () => {
-  delayFields.forEach(
-    elem => (delayObject[elem.getAttribute(`name`)] = elem.value)
-  );
-};
-
-let resultBtnIsBlock = value => (resultButton.disabled = value);
-
-function mainController(event) { 
-  event.preventDefault();
-  getDelayObject();
-  amountRepeat = 0;
-  cleaningTimer();
-  startTimeout();
-  resultBtnIsBlock(true); 
+function getDelayObject() {
+  delayFields.forEach(elem => (delayObject[elem.getAttribute('name')] = elem.value));
 }
 
-let startTimeout = () => {
+function resultBtnIsBlock(value) {
+  resultButton.disabled = value;
+}
+
+function mainController(event) {
+  event.preventDefault();
+  getDelayObject();
+  cleaningTimer();
+  startTimeout();
+  resultBtnIsBlock(true);
+}
+
+function startTimeout() {
   timerId.timeoutId = setTimeout(() => {
-    createPromise();
     startInterval();
   }, delayObject.delay);
-};
+}
 
-let startInterval = () => {
+function startInterval() {
   timerId.intervalId = setInterval(() => {
     createPromise();
   }, delayObject.step);
-};
+}
 
-let createPromise = () => {
+function createPromise() {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
     setTimeout(() => {
       if (shouldResolve) {
-        resolve(); 
+        resolve();
       } else {
-        reject(); 
+        reject();
       }
     }, delayObject.step);
-  });
-}
-
-for (let pos = 1; pos <= delayObject.amount; pos += 1) { 
-  const promise = createPromise(); 
-  promise
+  })
     .then(() => {
-      console.log(`✅ Fulfilled promise ${pos} in ${delayObject.step}ms`);
-      Notiflix.Notify.success(
-        `Fulfilled promise ${pos} in ${delayObject.step}ms`
-      );
+      console.log('✅ Fulfilled promise');
+      Notiflix.Notify.success(`Fulfilled promise in ${delayObject.step}ms`);
     })
     .catch(() => {
-      console.log(`❌ Rejected promise ${pos} in ${delayObject.step}ms`);
-      Notiflix.Notify.failure(
-        `Rejected promise ${pos} in ${delayObject.step}ms`
-      );
+      console.log('❌ Rejected promise');
+      Notiflix.Notify.failure(`Rejected promise in ${delayObject.step}ms`);
     });
 }
 
-let cleaningTimer = () => {
+function cleaningTimer() {
   clearTimeout(timerId.intervalId);
-  clearTimeout(timerId.timeoutId); 
-};
+  clearTimeout(timerId.timeoutId);
+}
 
 function changeController() {
   for (const element of delayFields) {
-    if (element.value < 0 || element.value === ``) { 
+    if (element.value < 0 || element.value === '') {
       return resultBtnIsBlock(true);
     }
   }
-  resultBtnIsBlock(false); 
+  resultBtnIsBlock(false);
 }
 
-resultButton.addEventListener(`click`, mainController);
-delayForm.addEventListener(`input`, changeController); 
+resultButton.addEventListener('click', mainController);
+delayForm.addEventListener('input', changeController);
 
 resultBtnIsBlock(true);
+
